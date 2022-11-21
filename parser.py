@@ -23,7 +23,9 @@ def block_chooser():
 def hw_chooser(block):
     while True:
         try:
-            hw = int(input('Введите номер домашки (число): '))
+            hw = int(input('Введите номер домашки (число, для пробника 0): '))
+            if hw == 0:
+                return 818
             if (1 + 8 * (block-1)) <= hw <= (8 * block):
                 if block == 3:
                     return (731 + hw)
@@ -47,6 +49,18 @@ def get_number_of_pages(block, hw, session, header):
         return pages
     except:
         return 1 
+
+def get_probnik_results(session, header, url):
+    hw_responce = session.get(url, headers=header).text
+    hw_soup = bs(hw_responce, "html.parser")
+    a = hw_soup.find_all('option')
+    out = ''
+    for i in range(len(a)):
+        a[i] = str(a[i])
+        if "selected" in a[i]:
+            out += a[i].split('">')[1].split('<')[0] + ' '
+    return out.strip()
+        
 
 
 #------------ Ввод почты и пароля ----------------
@@ -102,16 +116,24 @@ def main():
             temp = link_soup.find_all('input', class_='form-control')
             name = temp[2].get('value')
             name = name.split()[1] + ' ' + name.split()[0]
-
-            temp = link_soup.find_all('div', class_='form-group col-md-3')
-            temp = temp[4].text
-            result = temp.split()[-1]
-            result = int(result.replace('%', ''))
-            output[name] = result
+            if hw_num == 818:
+                link += '?status=checked'
+                res = get_probnik_results(session, header, link)
+                if len(res.split()) == 26:
+                    res += ' ?'
+                output[name] = res
+            else:
+                temp = link_soup.find_all('div', class_='form-group col-md-3')
+                temp = temp[4].text
+                result = temp.split()[-1]
+                result = int(result.replace('%', ''))
+                output[name] = result
 
     output = dict(sorted(output.items(), key=lambda x: x[0]))
     for st in output:
         l = 30 - len(st) - len(str(output[st]))
+        if l < 1:
+            l = 100 - len(st) - len(str(output[st]))
         print(st, ' ' * l, output[st])
 
     print('--------------------------------------------------------')
