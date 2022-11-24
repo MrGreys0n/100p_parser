@@ -2,9 +2,11 @@ from bs4 import BeautifulSoup as bs
 import requests
 import fake_useragent
 import math
+import time
 
 EMAIL = ''
 PASSWORD = ''
+LOGINS = ['sergey2304s@mail.ru']
 
 
 #------------ Функция выбора блока ----------------
@@ -74,6 +76,11 @@ def main():
     login_url = "https://api.100points.ru/login"
     if len(EMAIL) == 0:
         email = input('Введите почту: ')
+        if email not in LOGINS:
+            print("Пользователя нет в базе, обратитесь к разработчику")
+            time.sleep(3)
+            return(0)
+            
         password = input('Введите пароль (если он такой же, как почта, просто нажмите Enter): ')
         EMAIL = email
         PASSWORD = password
