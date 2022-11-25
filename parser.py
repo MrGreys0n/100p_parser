@@ -19,12 +19,17 @@ def group_maker():
             print('Вводите учеников (по одному в строку):')
             for _ in range(number_of_students):
                 students.append(input().replace('\t', ' '))
-            for s in students:
-                f.write(s + '\n')
+            for s in range(len(students)):
+                if len(students[s].split()) == 1:
+                    for i in range(1, len(students[s])):
+                        if students[s][i] == students[s][i].upper():
+                            students[s] = students[s][:i] + ' ' + students[s][i:]
+                            break
+                f.write(students[s] + '\n')
             f.write('*')
             print('Группа успешно сохранена!')
     '''
-    with open('F:\students.txt', 'r') as f:
+    with open('students.txt', 'r') as f:
         a = [x for x in f.read().split('*') if x != '']
         print(a)
     '''
@@ -44,6 +49,7 @@ def get_students():
 
 #------------ Функция выбора блока ----------------
 def block_chooser():
+    '''
     while True:
         try:
             block = int(input('Введите номер блока (цифра) (если хотите изменить списки своих групп, введите 0): '))
@@ -53,8 +59,17 @@ def block_chooser():
                 group_maker()
                 return block_chooser()
             raise Exception
-        except:
+        except Exception as e:
+            print(e)
             print('Ошибка ввода')
+            '''
+
+    block = int(input('Введите номер блока (цифра) (если хотите изменить списки своих групп, введите 0): '))
+    if 1 <= block <= 9:
+        return (113 - block)
+    if block == 0:
+        group_maker()
+        return block_chooser()
 
 #------------ Функция выбора домашки ----------------
 # TODO: нормально парсить номера домашек
