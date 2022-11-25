@@ -4,18 +4,54 @@ import fake_useragent
 import math
 import time
 
-EMAIL = ''
+EMAIL = 'sergey2304s@mail.ru'
 PASSWORD = ''
 LOGINS = ['sergey2304s@mail.ru']
 
+
+def group_maker():
+    number_of_groups = int(input("Введите количество групп: "))
+    with open('students.txt', 'w') as f:
+        for i in range(number_of_groups):
+            number_of_students = int(input("Введите количество учеников в группе №{}: ".format(i+1)))
+            students = []
+            print('Вводите учеников (по одному в строку):')
+            for _ in range(number_of_students):
+                students.append(input().replace('\t', ' '))
+            for s in students:
+                f.write(s + '\n')
+            f.write('*')
+            print('Группа успешно сохранена!')
+    '''
+    with open('F:\students.txt', 'r') as f:
+        a = [x for x in f.read().split('*') if x != '']
+        print(a)
+    '''
+
+def get_students():
+    try:
+        with open('students.txt', 'r') as f:
+            a = [x.split('\n') for x in f.read().split('*') if x != '']
+            for i in range(len(a)):
+                if a[i][-1] == '':
+                    a[i].pop(-1)
+            print(a)
+            return a
+    except FileNotFoundError:
+        print("Сначала нужно задать список учеников")
+        group_maker()
+        return get_students()
 
 #------------ Функция выбора блока ----------------
 def block_chooser():
     while True:
         try:
-            block = int(input('Введите номер блока (цифра): '))
+            block = int(input('Введите номер блока (цифра) (если хотите изменить списки своих групп, введите 0): '))
             if 1 <= block <= 9:
                 return (113 - block)
+            if block == 0:
+                group_maker()
+                return block_chooser()
             raise Exception
         except:
             print('Ошибка ввода')
@@ -87,9 +123,6 @@ def main():
     else:
         email = EMAIL
         password = PASSWORD
-
-    # email = 'sergey2304s@mail.ru'
-    # password = 'sergey2304s@mail.ru'
     if password == '':
         password = email
 
@@ -101,6 +134,9 @@ def main():
 
     session.headers.update(header)
     responce = session.post(login_url, data=data)
+
+    stud_list = get_students()
+    num_of_groups = len(stud_list)
 
     #------------ Выбор домашки ----------------
     block_num = block_chooser()
@@ -122,7 +158,7 @@ def main():
             link_soup = bs(link_responce, "html.parser")
             temp = link_soup.find_all('input', class_='form-control')
             name = temp[2].get('value')
-            name = name.split()[1] + ' ' + name.split()[0]
+            #name = name.split()[1] + ' ' + name.split()[0]
             if hw_num == 818:
                 link += '?status=checked'
                 res = get_probnik_results(session, header, link)
@@ -133,15 +169,21 @@ def main():
                 temp = link_soup.find_all('div', class_='form-group col-md-3')
                 temp = temp[4].text
                 result = temp.split()[-1]
-                result = int(result.replace('%', ''))
+                result = result.replace('%', '')
                 output[name] = result
 
     output = dict(sorted(output.items(), key=lambda x: x[0]))
-    for st in output:
-        l = 30 - len(st) - len(str(output[st]))
-        if l < 1:
-            l = 100 - len(st) - len(str(output[st]))
-        print(st, ' ' * l, output[st])
+    final = []
+    print(list(output.keys()))
+    for group in stud_list:
+        f = []
+        for student in group:
+            if student in output.keys():
+                f.append(student + ' ' + output[student])
+            else:
+                f.append(student + ' ' + '0')
+        final.append(f)
+    print(final)
 
     print('--------------------------------------------------------')
 
