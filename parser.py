@@ -49,7 +49,6 @@ def get_students():
 
 #------------ Функция выбора блока ----------------
 def block_chooser():
-    '''
     while True:
         try:
             block = int(input('Введите номер блока (цифра) (если хотите изменить списки своих групп, введите 0): '))
@@ -62,14 +61,6 @@ def block_chooser():
         except Exception as e:
             print(e)
             print('Ошибка ввода')
-            '''
-
-    block = int(input('Введите номер блока (цифра) (если хотите изменить списки своих групп, введите 0): '))
-    if 1 <= block <= 9:
-        return (113 - block)
-    if block == 0:
-        group_maker()
-        return block_chooser()
 
 #------------ Функция выбора домашки ----------------
 # TODO: нормально парсить номера домашек
