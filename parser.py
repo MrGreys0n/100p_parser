@@ -10,6 +10,7 @@ LOGINS = ['sergey2304s@mail.ru']
 
 
 def group_maker():
+    print("ВАЖНО! Сначала убедитесь, что имя и фамилия ученика, которые вы вводите, полностью совпадают с информацией на сайте!")
     number_of_groups = int(input("Введите количество групп: "))
     with open('students.txt', 'w') as f:
         for i in range(number_of_groups):
@@ -35,7 +36,6 @@ def get_students():
             for i in range(len(a)):
                 if a[i][-1] == '':
                     a[i].pop(-1)
-            print(a)
             return a
     except FileNotFoundError:
         print("Сначала нужно задать список учеников")
@@ -174,7 +174,6 @@ def main():
 
     output = dict(sorted(output.items(), key=lambda x: x[0]))
     final = []
-    print(list(output.keys()))
     for group in stud_list:
         f = []
         for student in group:
@@ -183,7 +182,22 @@ def main():
             else:
                 f.append(student + ' ' + '0')
         final.append(f)
-    print(final)
+    a = input("Для вывода результатов в консоли нажмите 0 и enter, для вывода в эксель - 1 и enter: ")
+    if a == '0':
+        for i in range(num_of_groups):
+            print('Группа №{}:'.format(i+1))
+            for student in final[i]:
+                st = student.split()
+                print(st[0], st[1], ' ' * (40 - len(student)), st[2])
+            print('--------------------------------------------------------')
+            a = input('Для вывода удобного столбика для копирования нажмите 1 и enter, для продолжения работы - просто enter: ')
+            if a == '1':
+                for student in final[i]:
+                    print(student.split()[2])
+                input('Нажмите enter для продолжения работы...')
+
+    elif a == '1':
+        pass
 
     print('--------------------------------------------------------')
 
