@@ -2,15 +2,10 @@ from bs4 import BeautifulSoup as bs
 import requests
 import fake_useragent
 import math
-import time
 
 #EMAIL = 'sergey2304s@mail.ru'
-EMAIL = 'morgunenko2004@gmail.com'
+EMAIL = ''
 PASSWORD = ''
-LOGINS = [
-    'sergey2304s@mail.ru',
-    'morgunenko2004@gmail.com'
-    ]
 PROBNIK = [818, 536]
 flag = False
 
@@ -34,6 +29,7 @@ def group_maker():
             f.write('*')
             print('Группа успешно сохранена!')
         f.close()
+    print("Рекомендуется перезапустить программу (на некоторых устройствах могут возникнуть непредвиденные ошибки, если этого не сделать)")
     '''
     with open('F:\students.txt', 'r') as f:
         a = [x for x in f.read().split('*') if x != '']
@@ -131,11 +127,6 @@ def main():
     login_url = "https://api.100points.ru/login"
     if len(EMAIL) == 0:
         email = input('Введите почту: ')
-        if email not in LOGINS:
-            print("Пользователя нет в базе, обратитесь к разработчику")
-            time.sleep(3)
-            return(0)
-            
         password = input('Введите пароль (если он такой же, как почта, просто нажмите Enter): ')
         EMAIL = email
         PASSWORD = password
