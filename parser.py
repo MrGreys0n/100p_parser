@@ -55,6 +55,8 @@ def block_chooser():
     while True:
         try:
             block = int(input('Введите номер блока (цифра) (если хотите изменить списки своих групп, введите 0): '))
+            if block == 4:
+                return 297
             if 1 <= block <= 9:
                 flag = False
                 return (113 - block)
@@ -69,13 +71,29 @@ def block_chooser():
 
 #------------ Функция выбора домашки ----------------
 # TODO: нормально парсить номера домашек
+
+
 def hw_chooser(block):
+    hws = {
+            25: 1255,
+            26: 1257,
+            27: 1258,
+            28: 1259,
+            29: 1260,
+            30: 1261,
+            31: 1262,
+            32: 1263,
+        }
     while True:
         try:
-            hw = int(input('Введите номер домашки (число, для пробника 0): '))
+            hw_str = input('Введите номер домашки (число, для пробника 0): ')
+            hw = int(hw_str)
+            if block == -184: block = 4
             if hw == 0:
                 if block == 3:
                     return 818
+                elif block == 4:
+                    return 1260
                 elif block == 2:
                     return 536
             if (1 + 8 * (block-1)) <= hw <= (8 * block):
@@ -83,11 +101,13 @@ def hw_chooser(block):
                     return (731 + hw)
                 elif block == 2:
                     return (488 + hw)
+                elif block == 4:
+                    return hws[hw]
                 else:
                     print('Пока ничего нет')
                     return hw_chooser(block)
             raise Exception
-        except:
+        except Exception:
             print('Ошибка ввода')
 
 #------------ Функция получения кол-ва страниц ----------------
