@@ -6,7 +6,7 @@ import math
 #EMAIL = 'sergey2304s@mail.ru'
 EMAIL = ''
 PASSWORD = ''
-PROBNIK = [818, 536]
+PROBNIK = []
 flag = False
 
 def group_maker():
@@ -50,21 +50,24 @@ def get_students():
         return get_students()
 
 #------------ Функция выбора блока ----------------
-def block_chooser():
+def block_chooser(session, header):
     global flag
     while True:
         try:
-            block = int(input('Введите номер блока (цифра) (если хотите изменить списки своих групп, введите 0): '))
-            if block == 4:
-                return 297
-            if 1 <= block <= 9:
-                flag = False
-                return (113 - block)
+            url = 'https://api.100points.ru/student_homework/index?status=passed&course_id=34'
+            hw_responce = session.get(url, headers=header).text
+            hw_soup = bs(hw_responce, "html.parser")
+            a = hw_soup.find_all('option')
+            for i in a:
+                if "блок" in i.text.lower(): 
+                    print(i.text.lower().strip(), end=': ID = ')
+                    print(i['value'])
+            block = int(input('Введите ID блока (ЧИСЛО) (если хотите изменить списки своих групп, введите 0): '))
             if block == 0:
                 flag = True
                 group_maker()
                 break
-            raise Exception
+            return block
         except Exception as e:
             print(e)
             print('Ошибка ввода')
@@ -73,41 +76,26 @@ def block_chooser():
 # TODO: нормально парсить номера домашек
 
 
-def hw_chooser(block):
-    hws = {
-            25: 1255,
-            26: 1257,
-            27: 1258,
-            28: 1259,
-            29: 1261,
-            30: 1283,
-            31: 1284,
-            32: 1285,
-        }
+def hw_chooser(block, session, header):
+    global PROBNIK
     while True:
         try:
-            hw_str = input('Введите номер домашки (число, для пробника 0): ')
+            url = 'https://api.100points.ru/student_homework/index?status=passed&course_id=34&module_id={}'.format(block)
+            hw_responce = session.get(url, headers=header).text
+            hw_soup = bs(hw_responce, "html.parser")
+            a = hw_soup.find_all('option')
+            for i in a:
+                if ("урок" in i.text.lower() or 'пробник' in i.text.lower()) and 'все уроки' not in i.text.lower():
+                    print(i.text.strip(), end=': ID = ')
+                    print(i['value'])
+                    if 'пробник' in i.text.lower():
+                        PROBNIK.append(int(i['value']))
+            hw_str = input('Введите id домашки: ')
             hw = int(hw_str)
-            if block == -184: block = 4
-            if hw == 0:
-                if block == 3:
-                    return 818
-                elif block == 4:
-                    return 1260
-                elif block == 2:
-                    return 536
-            if (1 + 8 * (block-1)) <= hw <= (8 * block):
-                if block == 3:
-                    return (731 + hw)
-                elif block == 2:
-                    return (488 + hw)
-                elif block == 4:
-                    return hws[hw]
-                else:
-                    print('Пока ничего нет')
-                    return hw_chooser(block)
+            return hw
             raise Exception
-        except Exception:
+        except Exception as e:
+            print(e)
             print('Ошибка ввода')
 
 #------------ Функция получения кол-ва страниц ----------------
@@ -140,6 +128,7 @@ def main():
     global EMAIL
     global PASSWORD
     global flag
+    global PROBNIK
 
     session = requests.Session()
     user = fake_useragent.UserAgent().random
@@ -169,14 +158,15 @@ def main():
     num_of_groups = len(stud_list)
 
     #------------ Выбор домашки ----------------
-    block_num = block_chooser()
+    block_num = block_chooser(session, header)
     while flag:
         block_num = block_chooser()
 
-    hw_num = hw_chooser(113 - block_num)
+    hw_num = hw_chooser(block_num, session, header)
     pages = get_number_of_pages(block_num, hw_num, session, header)
     
     output = {}
+    print(PROBNIK)
 
     for page in range(1, pages + 1):
         hw_url = 'https://api.100points.ru/student_homework/index?status=passed&course_id=34&module_id={}&lesson_id={}&page={}'.format(block_num, hw_num, page)
