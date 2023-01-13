@@ -3,11 +3,47 @@ import requests
 import fake_useragent
 import math
 
-#EMAIL = 'sergey2304s@mail.ru'
+
 EMAIL = ''
 PASSWORD = ''
+COURSE_ID = 0
 PROBNIK = []
+IS_PROBNIK = False
 flag = False
+TRANSLATE_TABLE_MATH = {
+    1: 6,
+    2: 11,
+    3: 17,
+    4: 22,
+    5: 27,
+    6: 34,
+    7: 40,
+    8: 46,
+    9: 52,
+    10: 58,
+    11: 64,
+    12: 66,
+    13: 68,
+    14: 70,
+    15: 72,
+    16: 74,
+    17: 76,
+    18: 78,
+    19: 80,
+    20: 82,
+    21: 84,
+    22: 86,
+    23: 88,
+    24: 90,
+    25: 92,
+    26: 94,
+    27: 96,
+    28: 98,
+    29: 100,
+    30: 100,
+    31: 100
+}
+
 
 def group_maker():
     print("ВАЖНО! Сначала убедитесь, что имя и фамилия ученика, которые вы вводите, полностью совпадают с информацией на сайте!")
@@ -52,9 +88,10 @@ def get_students():
 #------------ Функция выбора блока ----------------
 def block_chooser(session, header):
     global flag
+    global COURSE_ID
     while True:
         try:
-            url = 'https://api.100points.ru/student_homework/index?status=passed&course_id=34'
+            url = 'https://api.100points.ru/student_homework/index?status=passed&course_id={}'.format(COURSE_ID)
             hw_responce = session.get(url, headers=header).text
             hw_soup = bs(hw_responce, "html.parser")
             a = hw_soup.find_all('option')
@@ -78,9 +115,10 @@ def block_chooser(session, header):
 
 def hw_chooser(block, session, header):
     global PROBNIK
+    global COURSE_ID
     while True:
         try:
-            url = 'https://api.100points.ru/student_homework/index?status=passed&course_id=34&module_id={}'.format(block)
+            url = 'https://api.100points.ru/student_homework/index?status=passed&course_id={}&module_id={}'.format(COURSE_ID, block)
             hw_responce = session.get(url, headers=header).text
             hw_soup = bs(hw_responce, "html.parser")
             a = hw_soup.find_all('option')
@@ -100,9 +138,8 @@ def hw_chooser(block, session, header):
 
 #------------ Функция получения кол-ва страниц ----------------
 def get_number_of_pages(block, hw, session, header):
-    print('Обрабатка информации может занять длительное время...')
     try:
-        hw_url = 'https://api.100points.ru/student_homework/index?status=passed&course_id=34&module_id={}&lesson_id={}&page={}'.format(block, hw, 1)
+        hw_url = 'https://api.100points.ru/student_homework/index?status=passed&course_id={}&module_id={}&lesson_id={}&page={}'.format(COURSE_ID, block, hw, 1)
         hw_responce = session.get(hw_url, headers=header).text
         hw_soup = bs(hw_responce, "html.parser")
         pages = math.ceil(int(hw_soup.find('div', class_='dataTables_info').text.split()[-1]) / 15)
@@ -129,6 +166,11 @@ def main():
     global PASSWORD
     global flag
     global PROBNIK
+    global COURSE_ID
+    global IS_PROBNIK
+
+    secondary = False
+    with_soch = False
 
     session = requests.Session()
     user = fake_useragent.UserAgent().random
@@ -157,6 +199,10 @@ def main():
     stud_list = get_students()
     num_of_groups = len(stud_list)
 
+    courses = {"1": 25, "2": 34}
+    course_num = input("Введите номер курса (1 (Легион) или 2 (Гуляка)): ")
+    COURSE_ID = courses[course_num]
+
     #------------ Выбор домашки ----------------
     block_num = block_chooser(session, header)
     while flag:
@@ -165,11 +211,24 @@ def main():
     hw_num = hw_chooser(block_num, session, header)
     pages = get_number_of_pages(block_num, hw_num, session, header)
     
+    if COURSE_ID == 25:
+        s = input('Это пробник (да/нет): ')
+        if s.lower() == 'да':
+            IS_PROBNIK = True
+            s = input('Вторичные баллы (да/нет): ')
+            if s.lower() == 'да':
+                secondary = True
+    elif COURSE_ID == 34:
+        s = input('Сочинение (да/нет): ')
+        if s.lower() == 'да':
+            with_soch = True
+    
+    print('Обрабатка информации может занять длительное время...')
+    
     output = {}
-    print(PROBNIK)
 
     for page in range(1, pages + 1):
-        hw_url = 'https://api.100points.ru/student_homework/index?status=passed&course_id=34&module_id={}&lesson_id={}&page={}'.format(block_num, hw_num, page)
+        hw_url = 'https://api.100points.ru/student_homework/index?status=passed&course_id={}&module_id={}&lesson_id={}&page={}'.format(COURSE_ID, block_num, hw_num, page)
         hw_responce = session.get(hw_url, headers=header).text
         hw_soup = bs(hw_responce, "html.parser")
         links = hw_soup.find_all('a', class_='btn btn-xs bg-purple')
@@ -181,18 +240,27 @@ def main():
             link_soup = bs(link_responce, "html.parser")
             temp = link_soup.find_all('input', class_='form-control')
             name = temp[2].get('value')
+            
             #name = name.split()[1] + ' ' + name.split()[0]
-            if hw_num in PROBNIK:
+            ''' старый вывод пробников
+            if hw_num in PROBNIK and COURSE_ID == 34:
                 link += '?status=checked'
                 res = get_probnik_results(session, header, link)
                 if len(res.split()) == 26:
                     res += ' ?'
                 output[name] = res
+            '''
+            if IS_PROBNIK and COURSE_ID == 25:
+                temp = link_soup.find_all('div', class_='form-group col-md-3')
+                result = temp[5].text.split()[-1].split('/')[0]
+                if secondary:
+                    result = str(TRANSLATE_TABLE_MATH[int(result)])
+                output[name] = result
             else:
                 temp = link_soup.find_all('div', class_='form-group col-md-3')
-                temp = temp[4].text
-                result = temp.split()[-1]
-                result = result.replace('%', '')
+                result = temp[5].text.split()[-1].split('/')[0]
+                if with_soch:
+                    result += ' ' + str ( int(result) - int(temp[5].text.split()[2].split('/')[0]) )
                 output[name] = result
 
     output = dict(sorted(output.items(), key=lambda x: x[0]))
@@ -216,13 +284,19 @@ def main():
             for student in final[i]:
                 st = student.split()
                 l = 40 - len(st[0]) - len(st[1]) - 2
+                '''
                 if len(st) == 3 and hw_num in PROBNIK:
                     print(st[0] + ' ' * (20 - len(st[0])) + st[1] + ' ' * (20 - len(st[1])) + 'не сдан')
-                elif len(st) == 3:
+                '''
+                if len(st) == 3:
                     print(st[0] + ' ' * (20 - len(st[0])) + st[1] + ' ' * (20 - len(st[1])), st[2])
+                elif len(st) == 4:
+                    print(st[0] + ' ' * (20 - len(st[0])) + st[1] + ' ' * (20 - len(st[1])), st[2], st[3])
+                ''' старый вывод пробников
                 else:
                     print(st[0] + ' ' * (20 - len(st[0])) + st[1] + ' ' * (20 - len(st[1])), end='')
                     del st[0:2]
+                    
                     summa = 0
                     soch = 0
                     for x in st:
@@ -232,6 +306,7 @@ def main():
                         print(x, end=' ')
                     if soch == 2: soch = 0
                     print(' ' * soch + str(summa))
+                '''
 
             print('------------------------------------------------------------------------------------------------------------')
             a = input('Для вывода удобного столбика для копирования нажмите 0 и enter, для продолжения работы - просто enter: ')
