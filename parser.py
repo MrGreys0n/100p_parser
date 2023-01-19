@@ -66,11 +66,6 @@ def group_maker():
             print('Группа успешно сохранена!')
         f.close()
     print("Рекомендуется перезапустить программу (на некоторых устройствах могут возникнуть непредвиденные ошибки, если этого не сделать)")
-    '''
-    with open('F:\students.txt', 'r') as f:
-        a = [x for x in f.read().split('*') if x != '']
-        print(a)
-    '''
 
 def get_students():
     try:
@@ -110,9 +105,6 @@ def block_chooser(session, header):
             print('Ошибка ввода')
 
 #------------ Функция выбора домашки ----------------
-# TODO: нормально парсить номера домашек
-
-
 def hw_chooser(block, session, header):
     global PROBNIK
     global COURSE_ID
@@ -199,8 +191,12 @@ def main():
     stud_list = get_students()
     num_of_groups = len(stud_list)
 
-    courses = {"1": 25, "2": 34}
-    course_num = input("Введите номер курса (1 (Легион) или 2 (Гуляка)): ")
+   # courses = {"1": 25, "2": 34}
+   # course_num = input("Введите номер курса (1 (Легион) или 2 (Гуляка)): ")
+    # COURSE_ID = courses[course_nu/
+    rus = [34, 79]
+    courses = {"1": 34, "2": 79}
+    course_num = input("Введите номер курса (1 (Гуляка) или 2 (Гуляка 2.0)): ")
     COURSE_ID = courses[course_num]
 
     #------------ Выбор домашки ----------------
@@ -218,7 +214,7 @@ def main():
             s = input('Вторичные баллы (да/нет): ')
             if s.lower() == 'да':
                 secondary = True
-    elif COURSE_ID == 34:
+    elif COURSE_ID in rus:
         s = input('Сочинение (да/нет): ')
         if s.lower() == 'да':
             with_soch = True
@@ -240,16 +236,6 @@ def main():
             link_soup = bs(link_responce, "html.parser")
             temp = link_soup.find_all('input', class_='form-control')
             name = temp[2].get('value')
-            
-            #name = name.split()[1] + ' ' + name.split()[0]
-            ''' старый вывод пробников
-            if hw_num in PROBNIK and COURSE_ID == 34:
-                link += '?status=checked'
-                res = get_probnik_results(session, header, link)
-                if len(res.split()) == 26:
-                    res += ' ?'
-                output[name] = res
-            '''
             if IS_PROBNIK and COURSE_ID == 25:
                 temp = link_soup.find_all('div', class_='form-group col-md-3')
                 result = temp[5].text.split()[-1].split('/')[0]
@@ -284,29 +270,10 @@ def main():
             for student in final[i]:
                 st = student.split()
                 l = 40 - len(st[0]) - len(st[1]) - 2
-                '''
-                if len(st) == 3 and hw_num in PROBNIK:
-                    print(st[0] + ' ' * (20 - len(st[0])) + st[1] + ' ' * (20 - len(st[1])) + 'не сдан')
-                '''
                 if len(st) == 3:
                     print(st[0] + ' ' * (20 - len(st[0])) + st[1] + ' ' * (20 - len(st[1])), st[2])
                 elif len(st) == 4:
                     print(st[0] + ' ' * (20 - len(st[0])) + st[1] + ' ' * (20 - len(st[1])), st[2], st[3])
-                ''' старый вывод пробников
-                else:
-                    print(st[0] + ' ' * (20 - len(st[0])) + st[1] + ' ' * (20 - len(st[1])), end='')
-                    del st[0:2]
-                    
-                    summa = 0
-                    soch = 0
-                    for x in st:
-                        soch = len(x)
-                        if x != '?':
-                            summa += int(x)
-                        print(x, end=' ')
-                    if soch == 2: soch = 0
-                    print(' ' * soch + str(summa))
-                '''
 
             print('------------------------------------------------------------------------------------------------------------')
             a = input('Для вывода удобного столбика для копирования нажмите 0 и enter, для продолжения работы - просто enter: ')
