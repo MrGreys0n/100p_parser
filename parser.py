@@ -281,15 +281,13 @@ def main():
                 for student in final[i]:
                     st = student.split()[2:]
                     if len(st) == 1 and hw_num in PROBNIK:
-                        print('не сдан')
+                        print(0)
                     else:
                         summa = 0
                         for x in st:
                             if x != '?':
                                 summa += int(x)
-                            print(x, end=' ')
-                        if hw_num in PROBNIK: print(str(summa))
-                        else: print()
+                            print(x)
                 input('Нажмите enter для продолжения работы...')
         print('Ученики, которых нет в списке, но есть на сайте:')
         for i in unknown:
