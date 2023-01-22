@@ -13,10 +13,10 @@
 # Установка библиотек
 **(Windows)** Запускаем файл setup.bat из скачанного архива и ждем, пока выполняются необходимые команды   
 **(macOS)** Открываем терминал и поочередно прописываем следующие команды:
-1. python -m pip install --upgrade pip
-2. pip install bs4
-3. pip install requests
-4. pip install fake_useragent  
+1. python3 -m pip3 install --upgrade pip3
+2. pip3 install bs4
+3. pip3 install requests
+4. pip3 install fake_useragent  
 Если во время выполнения действий этого шага возникли какие-то ошибки, пишите [мне](https://vk.com/mrgreyson), помогу их решить
 
 # Запуск программы
