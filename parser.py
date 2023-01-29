@@ -311,15 +311,9 @@ def main():
             print(st[0] + ' ' * (20 - len(st[0])) + st[1] + ' ' * (20 - len(st[1])), end='')
             del st[0:2]
             summa = 0
-            soch = 0
             for x in st:
-                soch = len(x)
-                if x != '?':
-                    summa += int(x)
                 print(x, end=' ')
-            if soch == 2: soch = 0
-            if hw_num in PROBNIK: print(' ' * soch + str(summa))
-            else: print()
+            print()
             
         print('------------------------------------------------------------------------------------------------------------')
 
