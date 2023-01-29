@@ -90,10 +90,13 @@ def block_chooser(session, header):
             hw_responce = session.get(url, headers=header).text
             hw_soup = bs(hw_responce, "html.parser")
             a = hw_soup.find_all('option')
+            block_list = []
             for i in a:
-                if "блок" in i.text.lower(): 
-                    print(i.text.lower().strip(), end=': ID = ')
-                    print(i['value'])
+                if "блок" in i.text.lower():
+                    block_list.append(i.text.strip() + ': ID = ' + i['value'])
+            block_list.sort()
+            for i in block_list:
+                print(i)
             block = int(input('Введите ID блока (ЧИСЛО) (если хотите изменить списки своих групп, введите 0): '))
             if block == 0:
                 flag = True
@@ -114,16 +117,18 @@ def hw_chooser(block, session, header):
             hw_responce = session.get(url, headers=header).text
             hw_soup = bs(hw_responce, "html.parser")
             a = hw_soup.find_all('option')
+            hws_list = []
             for i in a:
                 if ("урок" in i.text.lower() or 'пробник' in i.text.lower()) and 'все уроки' not in i.text.lower():
-                    print(i.text.strip(), end=': ID = ')
-                    print(i['value'])
+                    hws_list.append(i.text.strip() + ': ID = ' + i['value'])
                     if 'пробник' in i.text.lower():
                         PROBNIK.append(int(i['value']))
+            hws_list.sort()
+            for i in hws_list:
+                print(i)
             hw_str = input('Введите id домашки: ')
             hw = int(hw_str)
             return hw
-            raise Exception
         except Exception as e:
             print(e)
             print('Ошибка ввода')
@@ -191,9 +196,9 @@ def main():
     stud_list = get_students()
     num_of_groups = len(stud_list)
 
-   # courses = {"1": 25, "2": 34}
-   # course_num = input("Введите номер курса (1 (Легион) или 2 (Гуляка)): ")
-    # COURSE_ID = courses[course_nu/
+    # courses = {"1": 25, "2": 34}
+    # course_num = input("Введите номер курса (1 (Легион) или 2 (Гуляка)): ")
+    # COURSE_ID = courses[course_num]
     rus = [34, 79]
     courses = {"1": 34, "2": 79}
     course_num = input("Введите номер курса (1 (Гуляка) или 2 (Гуляка 2.0)): ")
@@ -244,9 +249,9 @@ def main():
                 output[name] = result
             else:
                 temp = link_soup.find_all('div', class_='form-group col-md-3')
-                result = temp[5].text.split()[-1].split('/')[0]
+                result = temp[5].text.split()[2].split('/')[0]
                 if with_soch:
-                    result += ' ' + str ( int(result) - int(temp[5].text.split()[2].split('/')[0]) )
+                    result += ' ' + str ( int(temp[5].text.split()[-1].split('/')[0]) - int(result) )
                 output[name] = result
 
     output = dict(sorted(output.items(), key=lambda x: x[0]))
@@ -256,10 +261,19 @@ def main():
         f = []
         for student in group:
             if student in output.keys():
-                f.append(student + ' ' + output[student])
+                if len(student.split()) == 1:
+                    f.append(student + ' ? '  + output[student])
+                else:
+                    f.append(student + ' ' + output[student])
                 del output[student]
             else:
-                f.append(student + ' ' + '0')
+                final_res = '0'
+                if with_soch and COURSE_ID in rus:
+                    final_res += ' 0'
+                if len(student.split()) == 1:
+                    f.append(student + ' ? '  + final_res)
+                else:
+                    f.append(student + ' ' + final_res)
         final.append(f)
     for student in output:
         unknown.append(student + ' ' + output[student])
@@ -283,11 +297,7 @@ def main():
                     if len(st) == 1 and hw_num in PROBNIK:
                         print(0)
                     else:
-                        summa = 0
-                        for x in st:
-                            if x != '?':
-                                summa += int(x)
-                            print(x)
+                        print(' '.join(st))
                 input('Нажмите enter для продолжения работы...')
         print('Ученики, которых нет в списке, но есть на сайте:')
         for i in unknown:
