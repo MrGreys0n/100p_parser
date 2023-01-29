@@ -302,7 +302,8 @@ def main():
         print('Ученики, которых нет в списке, но есть на сайте:')
         for i in unknown:
             st = i.split()
-            if st[1] in ["0", "1"]:
+            
+            if st[1].isdigit():
                 temp = [st[0], '?']
                 for x in st[1:]:
                     temp.append(x)
