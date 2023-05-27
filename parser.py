@@ -4,8 +4,8 @@ import fake_useragent
 import math
 
 
-EMAIL = 'sergey2304s@mail.ru'
-PASSWORD = 'sergey2304s@mail.ru'
+EMAIL = ''
+PASSWORD = ''
 COURSE_ID = 0
 PROBNIK = []
 IS_PROBNIK = False
