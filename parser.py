@@ -4,8 +4,8 @@ import fake_useragent
 import math
 
 
-EMAIL = ''
-PASSWORD = ''
+EMAIL = 'sergey2304s@mail.ru'
+PASSWORD = 'sergey2304s@mail.ru'
 COURSE_ID = 0
 PROBNIK = []
 IS_PROBNIK = False
@@ -251,7 +251,7 @@ def main():
                 temp = link_soup.find_all('div', class_='form-group col-md-3')
                 result = temp[5].text.split()[2].split('/')[0]
                 if with_soch:
-                    result += ' ' + str ( int(temp[5].text.split()[-1].split('/')[0]) - int(result) )
+                    result += ' ' + str ( int(temp[5].text.split()[-1].split('/')[0]) )
                 output[name] = result
 
     output = dict(sorted(output.items(), key=lambda x: x[0]))
